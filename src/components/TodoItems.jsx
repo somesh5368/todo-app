@@ -1,62 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const STORAGE_KEY = "vite_todos_v1";
+export default function TodoItem({ todo, onToggle, onDelete, onEdit }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(todo.text);
 
-function generateId() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-}
-
-export default function TodoApp() {
-  const [todos, setTodos] = useState(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [text, setText] = useState("");
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-  }, [todos]);
-
-  function addTodo(e) {
-    e.preventDefault();
-    const t = text.trim();
-    if (!t) return;
-    const newTodo = { id: generateId(), text: t, done: false };
-    setTodos((prev) => [newTodo, ...prev]);
-    setText("");
+  function saveEdit() {
+    const v = value.trim();
+    if (v) onEdit(v);
+    setEditing(false);
   }
 
   return (
-    <div style={{ maxWidth: 500, margin: "40px auto", background: "#fff", padding: 20, borderRadius: 10 }}>
-      <h2>Todo List (Part 1)</h2>
+    <li style={{ display: "flex", gap: 8, marginBottom: 6 }}>
+      <input type="checkbox" checked={todo.done} onChange={onToggle} />
 
-      <form onSubmit={addTodo} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Add a new task..."
-          style={{ flex: 1, padding: 10 }}
-        />
-        <button type="submit">Add</button>
-      </form>
-
-      {todos.length === 0 ? (
-        <div>No todos yet.</div>
+      {!editing ? (
+        <span
+          onDoubleClick={() => setEditing(true)}
+          style={{ textDecoration: todo.done ? "line-through" : "none", cursor: "pointer" }}
+        >
+          {todo.text}
+        </span>
       ) : (
-        <ul>
-          {todos.map((todo) => (
-            <li key={todo.id}>
-              <input type="checkbox" checked={todo.done} readOnly />
-              {todo.text}
-            </li>
-          ))}
-        </ul>
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onBlur={saveEdit}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") saveEdit();
+            if (e.key === "Escape") setEditing(false);
+          }}
+          autoFocus
+        />
       )}
-    </div>
+
+      <button onClick={onDelete}>Delete</button>
+    </li>
   );
 }
