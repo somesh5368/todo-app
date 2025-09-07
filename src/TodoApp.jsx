@@ -55,7 +55,7 @@ export default function TodoApp() {
 
   return (
     <div style={{ maxWidth: 500, margin: "40px auto", background: "#fff", padding: 20, borderRadius: 10 }}>
-      <h2>Todo List (Full Features)</h2>
+      <h2>Todo List (Full hello Features)</h2>
 
       <form onSubmit={addTodo} style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <input
